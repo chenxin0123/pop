@@ -1,4 +1,4 @@
-/**
+/**！
  Copyright (c) 2014-present, Facebook, Inc.
  All rights reserved.
  
@@ -20,6 +20,7 @@
 # define POP_EXTERN_C_END
 #endif
 
+//数组个数
 #define POP_ARRAY_COUNT(x) sizeof(x) / sizeof(x[0])
 
 #if defined (__cplusplus) && defined (__GNUC__)
@@ -28,6 +29,7 @@
 # define POP_NOTHROW
 #endif
 
+//如果要使用SceneKit 添加POP_USE_SCENEKIT=1到预编译宏中
 #if defined(POP_USE_SCENEKIT)
 # if TARGET_OS_MAC || TARGET_OS_IPHONE
 #  define SCENEKIT_SDK_AVAILABLE 1

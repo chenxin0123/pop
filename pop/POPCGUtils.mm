@@ -1,4 +1,4 @@
-/**
+/**!
  Copyright (c) 2014-present, Facebook, Inc.
  All rights reserved.
  
@@ -11,6 +11,7 @@
 
 #import <objc/runtime.h>
 
+///获取color的RGBA成分
 void POPCGColorGetRGBAComponents(CGColorRef color, CGFloat components[])
 {
   if (color) {
@@ -40,6 +41,7 @@ void POPCGColorGetRGBAComponents(CGColorRef color, CGFloat components[])
   }
 }
 
+///创建一个DeviceRGB的CGColor并返回
 CGColorRef POPCGColorRGBACreate(const CGFloat components[])
 {
 #if TARGET_OS_IPHONE
@@ -52,6 +54,7 @@ CGColorRef POPCGColorRGBACreate(const CGFloat components[])
 #endif
 }
 
+///返回一个CGColorRef color:CGColorRef UIColor
 CGColorRef POPCGColorWithColor(id color)
 {
   if (CFGetTypeID((__bridge CFTypeRef)color) == CGColorGetTypeID()) {
@@ -107,12 +110,13 @@ CGColorRef POPCGColorWithColor(id color)
 }
 
 #if TARGET_OS_IPHONE
-
+///获取coor的RGBA成分
 void POPUIColorGetRGBAComponents(UIColor *color, CGFloat components[])
 {
   return POPCGColorGetRGBAComponents(POPCGColorWithColor(color), components);
 }
 
+///创建一个UIColor
 UIColor *POPUIColorRGBACreate(const CGFloat components[])
 {
   CGColorRef colorRef = POPCGColorRGBACreate(components);

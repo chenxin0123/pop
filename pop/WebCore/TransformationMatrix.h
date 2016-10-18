@@ -34,11 +34,31 @@
 
 namespace WebCore {
 
+  /*
+   
+   struct CATransform3D
+   {
+   CGFloat    m11（x缩放）,   m12（y切变）,      m13（旋转）,     m14（）;
+   
+   CGFloat    m21（x切变）,    m22（y缩放）,     m23（）,             m24（）;
+   
+   CGFloat    m31（旋转）,      m32（）,         m33（z轴缩放),            m34（透视效果，要操作的这个对象要有旋转的角度，否则没有效果。正直/负值都有意义）;
+   
+   CGFloat    m41（x平移）,     m42（y平移）,     m43（z平移）,     m44（）;
+   };
+
+   //单设ｍ12或ｍ21的时候是切变效果，当【ｍ12=角度】和【ｍ21=－角度】的时候就是旋转效果了。两个角度值相同
+   //m12 skews left up, right down if >0
+   //m14 left side towards viewer, right side away from viewer
+   //m21 skews bottom left, top right if <0
+   //m24 top towards the viewer
+   */
+
   class TransformationMatrix {
   public:
 
     typedef double Matrix4[4][4];
-
+    //默认构造函数
     TransformationMatrix() { makeIdentity(); }
     TransformationMatrix(const TransformationMatrix& t) { *this = t; }
     TransformationMatrix(double a, double b, double c, double d, double e, double f) { setMatrix(a, b, c, d, e, f); }
@@ -48,8 +68,10 @@ namespace WebCore {
                          double m41, double m42, double m43, double m44)
     {
       setMatrix(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44);
+    
     }
-
+    
+    //a x缩放 b y切变 c x切变 d y缩放 e x平移 f y平移
     void setMatrix(double a, double b, double c, double d, double e, double f)
     {
       m_matrix[0][0] = a; m_matrix[0][1] = b; m_matrix[0][2] = 0; m_matrix[0][3] = 0;
@@ -75,6 +97,7 @@ namespace WebCore {
       return *this;
     }
 
+    
     TransformationMatrix& makeIdentity()
     {
       setMatrix(1, 0, 0, 0,  0, 1, 0, 0,  0, 0, 1, 0,  0, 0, 0, 1);
@@ -149,9 +172,11 @@ namespace WebCore {
     TransformationMatrix& scale(double);
     TransformationMatrix& scaleNonUniform(double sx, double sy);
     TransformationMatrix& scale3d(double sx, double sy, double sz);
-
+    //d是角度 绕z轴旋转
     TransformationMatrix& rotate(double d) { return rotate3d(0, 0, d); }
+    //x y用于计算角度 原点到点(x,y)的角度
     TransformationMatrix& rotateFromVector(double x, double y);
+      ///旋转 角度
     TransformationMatrix& rotate3d(double rx, double ry, double rz);
 
     // The vector (x,y,z) is normalized if it's not already. A vector of

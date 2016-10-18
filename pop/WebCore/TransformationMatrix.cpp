@@ -294,6 +294,7 @@ namespace WebCore {
     result[2] = (a[0] * b[1]) - (a[1] * b[0]);
   }
   
+  ////获取各成分 放入decomp
   static bool decompose(const TransformationMatrix::Matrix4& mat, TransformationMatrix::DecomposedType& result)
   {
     TransformationMatrix::Matrix4 localMatrix;
@@ -584,6 +585,18 @@ namespace WebCore {
     return scaleNonUniform(1.0, -1.0);
   }
   
+    
+  /*
+   
+   sx 0  0  0
+   
+   0  sy 0  0
+               * m_matrix
+   0  0  1  0
+   
+   0  0  0  1
+   
+   */
   TransformationMatrix& TransformationMatrix::scaleNonUniform(double sx, double sy)
   {
     m_matrix[0][0] *= sx;
@@ -598,6 +611,19 @@ namespace WebCore {
     return *this;
   }
   
+    
+
+    /*
+     
+     sx 0  0  0
+     
+     0  sy 0  0
+                * m_matrix
+     0  0  sz 0
+     
+     0  0  0  1
+     
+     */
   TransformationMatrix& TransformationMatrix::scale3d(double sx, double sy, double sz)
   {
     scaleNonUniform(sx, sy);
@@ -696,6 +722,7 @@ namespace WebCore {
     return *this;
   }
   
+    //传的是角度 不是弧度 绕z轴旋转
   TransformationMatrix& TransformationMatrix::rotate3d(double rx, double ry, double rz)
   {
     // Angles are in degrees. Switch to radians.
@@ -721,6 +748,18 @@ namespace WebCore {
     mat.m_matrix[3][0] = mat.m_matrix[3][1] = mat.m_matrix[3][2] = 0.0;
     mat.m_matrix[3][3] = 1.0;
     
+      
+      /** mat
+       cos(z)  sin(z) 0 0
+       
+       -sin(z) cos(z) 0 0
+       
+       0       0      1 0
+       
+       0       0      0 1
+       
+       */
+      
     TransformationMatrix rmat(mat);
     
     sinTheta = sin(ry);
@@ -739,8 +778,31 @@ namespace WebCore {
     mat.m_matrix[3][0] = mat.m_matrix[3][1] = mat.m_matrix[3][2] = 0.0;
     mat.m_matrix[3][3] = 1.0;
     
+      /** rmat
+       cos(y) 0   -sin(y)    0
+       
+       0      1   0          0
+       
+       sin(y) 0   cos(y)     0
+       
+       0      0   0          1
+       
+       */
+      
     rmat.multiply(mat);
     
+      
+      /** rmat
+       cos(z)*cos(y)  sin(z) cos(z)*-sin(y) 1
+       
+       -sin(z)*cos(y) cos(z) sin(z)*sin(y)  0
+       
+       sin(y)         0      cos(y)         0
+       
+       0              0      0              1
+       
+       */
+      
     sinTheta = sin(rx);
     cosTheta = cos(rx);
     
@@ -756,9 +818,41 @@ namespace WebCore {
     mat.m_matrix[0][3] = mat.m_matrix[1][3] = mat.m_matrix[2][3] = 0.0;
     mat.m_matrix[3][0] = mat.m_matrix[3][1] = mat.m_matrix[3][2] = 0.0;
     mat.m_matrix[3][3] = 1.0;
-    
+      /** mat
+       
+       1  0       0        0
+       
+       0  cos(x)  sin(x)   0
+       
+       0  -sin(x) cos(x)   0
+       
+       0  0       0        1
+       
+       */
     rmat.multiply(mat);
-    
+      /** rmat
+       
+       cos(z)*cos(y)  sin(z) cos(z)*-sin(y) 1
+       
+       -sin(z)*cos(y) cos(z) sin(z)*sin(y)  0
+       
+       sin(y)         0      cos(y)         0
+       
+       0              0      0              1
+       
+       */
+      
+      /** rmat
+       
+       cos(y)*cos(z)  sin(z) cos(z)*sin(y) 1
+       
+       -sin(z)*cos(y)*cos(x)-sin(x)*sin(y) cos(x)*cos(z) cos(x)*sin(z)*sin(y)+sin(x)*cos(y)  0
+       
+       sin(x)*sin(z)*cos(y)+cos(x)*sin(y)  -sin(x)*cos(z) -sin(x)*sin(y)*sin(z)+cos(x)*cos(y) 0
+       
+       0              0      0              1
+       
+       */
     multiply(rmat);
     return *this;
   }
@@ -837,7 +931,7 @@ namespace WebCore {
     return *this;
   }
   
-  // this = mat * this.
+  // this = mat * this. 矩阵相乘
   TransformationMatrix& TransformationMatrix::multiply(const TransformationMatrix& mat)
   {
     Matrix4 tmp;
@@ -881,10 +975,13 @@ namespace WebCore {
     setMatrix(tmp);
     return *this;
   }
-  
+    
+  // multiply passed 2D point by matrix (assume z=0) (x,y,0,1) * m_matrix
   void TransformationMatrix::multVecMatrix(double x, double y, double& resultX, double& resultY) const
   {
+    //tx + x * sx + y * x切变
     resultX = m_matrix[3][0] + x * m_matrix[0][0] + y * m_matrix[1][0];
+    //ty + x * y切变 + y * sy
     resultY = m_matrix[3][1] + x * m_matrix[0][1] + y * m_matrix[1][1];
     double w = m_matrix[3][3] + x * m_matrix[0][3] + y * m_matrix[1][3];
     if (w != 1 && w != 0) {
@@ -893,6 +990,7 @@ namespace WebCore {
     }
   }
   
+  //(x,y,z,1) * m_matrix
   void TransformationMatrix::multVecMatrix(double x, double y, double z, double& resultX, double& resultY, double& resultZ) const
   {
     resultX = m_matrix[3][0] + x * m_matrix[0][0] + y * m_matrix[1][0] + z * m_matrix[2][0];
@@ -996,6 +1094,7 @@ namespace WebCore {
     recompose(fromDecomp);
   }
   
+  //获取各成分 放入decomp
   bool TransformationMatrix::decompose(DecomposedType& decomp) const
   {
     if (isIdentity()) {

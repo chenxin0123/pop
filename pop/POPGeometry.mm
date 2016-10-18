@@ -1,4 +1,4 @@
-/**
+/**!
  Copyright (c) 2014-present, Facebook, Inc.
  All rights reserved.
  
@@ -12,6 +12,7 @@
 #if !TARGET_OS_IPHONE
 @implementation NSValue (POP)
 
+///创建NSValue
 + (NSValue *)valueWithCGPoint:(CGPoint)point {
   return [NSValue valueWithBytes:&point objCType:@encode(CGPoint)];
 }
