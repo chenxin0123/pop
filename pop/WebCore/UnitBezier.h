@@ -57,6 +57,10 @@ namespace WebCore {
      cy =  3 * p1y
      by =  3 * (p2y - p1y) - cy
      ay =  1 - cy - by
+     
+     
+     
+     p0(0,0) p1(p1x,p1y) p2(p2x,p2y) p3(1,1)
      */
     UnitBezier(double p1x, double p1y, double p2x, double p2y)
     {

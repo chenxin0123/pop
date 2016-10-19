@@ -43,6 +43,7 @@ namespace POP {
     T x;
     T y;
 
+      
     // Zero vector
     static const Vector2 Zero() { return Vector2(0); }
 
@@ -100,14 +101,14 @@ namespace POP {
     Vector2 &operator+= (const Vector2 &v) { x += v.x; y += v.y; return *this; };
     Vector2 &operator-= (const Vector2 &v) { x -= v.x; y -= v.y; return *this; };
 
-    // Norms
+    // Norms 向量长度
     CGFloat norm() const { return sqrtr(squaredNorm()); }
     CGFloat squaredNorm() const { return x * x + y * y; }
 
     // Cast
     template<typename U> Vector2<U> cast() const { return Vector2<U>(x, y); }
     CGPoint cg_point() const { return CGPointMake(x, y); };
-  };
+  };//struct Vector2 end
 
   template<typename T>
   const typename Vector2<T>::_data Vector2<T>::_v = { &Vector2<T>::x, &Vector2<T>::y };
@@ -268,7 +269,7 @@ namespace POP {
     template<typename U> Vector4<U> cast() const { return Vector4<U>(x, y, z, w); }
   };
 
-  template<typename T>
+  template<typename T>//???
   const typename Vector4<T>::_data Vector4<T>::_v = { &Vector4<T>::x, &Vector4<T>::y, &Vector4<T>::z, &Vector4<T>::w };
 
   /** Convenience typedefs */

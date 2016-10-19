@@ -1,4 +1,4 @@
-/**
+/**!
  Copyright (c) 2014-present, Facebook, Inc.
  All rights reserved.
  
@@ -23,6 +23,7 @@ NS_INLINE CGFloat sqrtr(CGFloat f)
 #endif
 }
 
+//像素对齐
 // round to nearest sub; pass 2.0 to round to every 0.5 (eg: retina pixels)
 NS_INLINE CGFloat POPSubRound(CGFloat f, CGFloat sub)
 {

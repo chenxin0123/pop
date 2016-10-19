@@ -1,4 +1,4 @@
-/*
+/*~
  * Copyright (C) 2005, 2006 Apple Computer, Inc.  All rights reserved.
  * Copyright (C) 2009 Torch Mobile, Inc.
  *
@@ -256,6 +256,7 @@ namespace WebCore {
     (p[2] * m[2][3]) + (p[3] * m[3][3]);
   }
   
+  ///3维向量长度
   static double v3Length(Vector3 a)
   {
     return sqrt((a[0] * a[0]) + (a[1] * a[1]) + (a[2] * a[2]));
