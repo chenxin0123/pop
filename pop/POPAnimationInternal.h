@@ -19,7 +19,7 @@
 using namespace POP;
 
 /**
- Enumeration of supported animation types.
+ Enumeration of supported animation types. 4种类型动画
  */
 enum POPAnimationType
 {
@@ -53,11 +53,12 @@ typedef void (^POPAnimationDidApplyBlock)(POPAnimation *anim);
 
 /**
  An array of optional progress markers. For each marker specified, the animation delegate will be informed when progress meets or exceeds the value specified. Specifying values outside of the [0, 1] range will give undefined results.
+ - (void)pop_animationDidReachToValue:(POPAnimation *)anim;将被调用
  */
 @property (copy, nonatomic) NSArray *progressMarkers;
 
 /**
- Return YES to indicate animation should continue animating.
+ Return YES to indicate animation should continue animating. 前进elapsedTime时间
  */
 - (BOOL)_advance:(id)object currentTime:(CFTimeInterval)currentTime elapsedTime:(CFTimeInterval)elapsedTime;
 
@@ -87,6 +88,7 @@ NS_INLINE Vector4d vector4d(VectorConstRef vec)
   }
 }
 
+///是否相等
 NS_INLINE bool vec_equal(VectorConstRef v1, VectorConstRef v2)
 {
   if (v1 == v2) {
@@ -110,6 +112,7 @@ struct ComputeProgressFunctor {
   }
 };
 
+//进度计算 超出大于1
 template<>
 struct ComputeProgressFunctor<Vector4r> {
   CGFloat operator()(const Vector4r &value, const Vector4r &start, const Vector4r &end) const {
@@ -152,6 +155,7 @@ extern _POPAnimationState *POPAnimationGetState(POPAnimation *a);
   FB_FLAG_GET (stype, flag, getter) \
   FB_FLAG_SET (stype, flag, mutator)
 
+///stype类型的实例中的property 类型ctype
 #define FB_PROPERTY_GET(stype, property, ctype) \
 - (ctype)property { \
   return ((stype *)_state)->property; \
@@ -172,7 +176,7 @@ extern _POPAnimationState *POPAnimationGetState(POPAnimation *a);
   ((stype *)_state)->property = [value copy]; \
   __VA_ARGS__ \
 }
-
+///实例的指针类型 getter setter 变量类型
 #define DEFINE_RW_PROPERTY(stype, flag, mutator, ctype, ...) \
   FB_PROPERTY_GET (stype, flag, ctype) \
   FB_PROPERTY_SET (stype, flag, mutator, ctype, __VA_ARGS__)
@@ -195,27 +199,31 @@ extern _POPAnimationState *POPAnimationGetState(POPAnimation *a);
 
 struct _POPAnimationState
 {
-  id __unsafe_unretained self;
+  id __unsafe_unretained self;//对应的动画
   POPAnimationType type;
   NSString *name;
   NSUInteger ID;
   CFTimeInterval beginTime;
-  CFTimeInterval startTime;
+  CFTimeInterval startTime;//开始时间 可以用这个来判断动画是否开始
   CFTimeInterval lastTime;
   id __weak delegate;
+    
+    //对应的block
   POPAnimationDidStartBlock animationDidStartBlock;
   POPAnimationDidReachToValueBlock animationDidReachToValueBlock;
   POPAnimationCompletionBlock completionBlock;
   POPAnimationDidApplyBlock animationDidApplyBlock;
+    
   NSMutableDictionary *dict;
   POPAnimationTracer *tracer;
-  CGFloat progress;
-  NSInteger repeatCount;
+  CGFloat progress;//动画进度
+  NSInteger repeatCount;//循环次数
   
-  bool active:1;
+  bool active:1;//active && !paused 表示动画执行
   bool paused:1;
   bool removedOnCompletion:1;
   
+    ///代理是否能够响应对应的方法
   bool delegateDidStart:1;
   bool delegateDidStop:1;
   bool delegateDidProgress:1;
@@ -291,6 +299,7 @@ struct _POPAnimationState
       delegate = d;
       delegateDidStart = [d respondsToSelector:@selector(pop_animationDidStart:)];
       delegateDidStop = [d respondsToSelector:@selector(pop_animationDidStop:finished:)];
+        //这个方法没有在POPAnimationDelegate中声明
       delegateDidProgress = [d respondsToSelector:@selector(pop_animation:didReachProgress:)];
       delegateDidApply = [d respondsToSelector:@selector(pop_animationDidApply:)];
       delegateDidReachToValue = [d respondsToSelector:@selector(pop_animationDidReachToValue:)];
@@ -460,6 +469,7 @@ struct _POPAnimationState
     return advanced;
   }
   
+    //虚函数
   virtual void willRun(bool started, id obj) {}
   virtual bool advance(CFTimeInterval time, CFTimeInterval dt, id obj) { return false; }
   virtual void computeProgress() {}
@@ -478,6 +488,7 @@ struct _POPAnimationState
     }
   }
   
+    ///暂停到未暂停 调用这个方法
   virtual void reset(bool all) {
     startTime = 0;
     lastTime = 0;

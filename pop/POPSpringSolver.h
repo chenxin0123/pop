@@ -1,4 +1,4 @@
-/**
+/**~
  Copyright (c) 2014-present, Facebook, Inc.
  All rights reserved.
  
@@ -16,15 +16,15 @@ namespace POP {
   template <typename T>
   struct SSState
   {
-    T p;
-    T v;
+    T p;//压强
+    T v;//速度
   };
   
   template <typename T>
   struct SSDerivative
   {
-    T dp;
-    T dv;
+    T dp;//压强导数
+    T dv;//速度导数
   };
   
   typedef SSState<Vector4d> SSState4d;
@@ -39,18 +39,19 @@ namespace POP {
   template <typename T>
   class SpringSolver
   {
-    double _k; // stiffness
-    double _b; // dampening
-    double _m; // mass
+    double _k; // stiffness 刚度 刚度是使物体产生单位变形所需的外力值
+    double _b; // dampening 阻尼 阻尼越大,振幅越小
+    double _m; // mass 质量
     
+      ///阈值又叫临界值，是指一个效应能够产生的最低值或最高值。
     double _tp; // threshold
-    double _tv; // threshold velocity
-    double _ta; // threshold acceleration
+    double _tv; // threshold velocity 速度
+    double _ta; // threshold acceleration 加速度
     
-    CFTimeInterval _accumulatedTime;
-    SSState<T> _lastState;
-    T _lastDv;
-    bool _started;
+    CFTimeInterval _accumulatedTime;//累计时间
+    SSState<T> _lastState;//
+    T _lastDv;//导数
+    bool _started;//是否开始
     
   public:
     SpringSolver(double k, double b, double m = 1) : _k(k), _b(b), _m(m), _started(false)
@@ -85,11 +86,13 @@ namespace POP {
       _ta = 625.0 * t * t;  // 5 units per second squared, squared for comparison
     }
     
+      //加速度
     T acceleration(const SSState<T> &state, double t)
     {
       return state.p*(-_k/_m) - state.v*(_b/_m);
     }
     
+      //导数
     SSDerivative<T> evaluate(const SSState<T> &initial, double t)
     {
       SSDerivative<T> output;
@@ -108,7 +111,7 @@ namespace POP {
       output.dv = acceleration(state, t+dt);
       return output;
     }
-    
+    //积分
     void integrate(SSState<T> &state, double t, double dt)
     {
       SSDerivative<T> a = evaluate(state, t);
@@ -124,7 +127,7 @@ namespace POP {
       
       _lastDv = dvdt;
     }
-    
+    //插值
     SSState<T> interpolate(const SSState<T> &previous, const SSState<T> &current, double alpha)
     {
       SSState<T> state;
@@ -155,6 +158,7 @@ namespace POP {
       }
     }
     
+      //收敛
     bool hasConverged()
     {
       if (!_started) {
@@ -170,6 +174,7 @@ namespace POP {
       return (_lastState.v.squaredNorm() < _tv) && (_lastDv.squaredNorm() < _ta);
     }
     
+      //重置
     void reset()
     {
       _accumulatedTime = 0;

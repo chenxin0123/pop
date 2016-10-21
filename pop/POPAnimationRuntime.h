@@ -1,4 +1,4 @@
-/**
+/**!
  Copyright (c) 2014-present, Facebook, Inc.
  All rights reserved.
  
@@ -16,15 +16,15 @@
 enum POPValueType
 {
   kPOPValueUnknown = 0,
-  kPOPValueInteger,
-  kPOPValueFloat,
-  kPOPValuePoint,
-  kPOPValueSize,
-  kPOPValueRect,
-  kPOPValueEdgeInsets,
-  kPOPValueAffineTransform,
-  kPOPValueTransform,
-  kPOPValueRange,
+  kPOPValueInteger,//short|unsigned short|int|unsigned int|long|unsigned long|long long|unsigned long long
+  kPOPValueFloat,//float 或者 double
+  kPOPValuePoint,//CGPoint NSPoint
+  kPOPValueSize,//CGSize NSSize
+  kPOPValueRect,//CGRect NSRect
+  kPOPValueEdgeInsets,//UIEdgeInsets
+  kPOPValueAffineTransform,//CGAffineTransform
+  kPOPValueTransform,//CATransform3D
+  kPOPValueRange,//NSRange CFRange
   kPOPValueColor,
   kPOPValueSCNVector3,
   kPOPValueSCNVector4,
@@ -48,12 +48,12 @@ extern POPValueType POPSelectValueType(id obj, const POPValueType *types, size_t
 extern const POPValueType kPOPAnimatableAllTypes[12];
 
 /**
- Array of all value types supported for animation.
+ Array of all value types supported for animation, exclued kPOPValueAffineTransform, kPOPValueTransform, kPOPValueRange
  */
 extern const POPValueType kPOPAnimatableSupportTypes[10];
 
 /**
- Returns a string description of a value type.
+ Returns a string description of a value type. 
  */
 extern NSString *POPValueTypeToString(POPValueType t);
 

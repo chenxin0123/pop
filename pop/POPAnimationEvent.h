@@ -1,4 +1,4 @@
-/**
+/**!
  Copyright (c) 2014-present, Facebook, Inc.
  All rights reserved.
  
@@ -30,7 +30,7 @@ typedef NS_ENUM(NSUInteger, POPAnimationEventType) {
 };
 
 /**
- @abstract The base animation event class.
+ @abstract The base animation event class. 保存 动画事件 时间
  */
 @interface POPAnimationEvent : NSObject
 
@@ -52,7 +52,7 @@ typedef NS_ENUM(NSUInteger, POPAnimationEventType) {
 @end
 
 /**
- @abstract An animation event subclass for recording value and velocity.
+ @abstract An animation event subclass for recording value and velocity. 保存 动画事件 时间 值 速度
  */
 @interface POPAnimationValueEvent : POPAnimationEvent
 

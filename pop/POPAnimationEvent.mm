@@ -1,4 +1,4 @@
-/**
+/**!
  Copyright (c) 2014-present, Facebook, Inc.
  All rights reserved.
  
@@ -69,7 +69,7 @@ static NSString *stringFromType(POPAnimationEventType aType)
   return s;
 }
 
-// subclass override
+// subclass override 如果_animationDescription不为空
 - (void)_appendDescription:(NSMutableString *)s
 {
   if (0 != _animationDescription.length) {

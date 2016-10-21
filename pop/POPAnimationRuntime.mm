@@ -1,4 +1,4 @@
-/**
+/**!
  Copyright (c) 2014-present, Facebook, Inc.
  All rights reserved.
  
@@ -30,6 +30,7 @@ static CFHashCode pointerHash(const void *ptr) {
   return (CFHashCode)(ptr);
 }
 
+///创建一个mutable字典 weak?  unsafe_unretained吧???
 CFMutableDictionaryRef POPDictionaryCreateMutableWeakPointerToWeakPointer(NSUInteger capacity)
 {
   CFDictionaryKeyCallBacks kcb = kCFTypeDictionaryKeyCallBacks;
@@ -50,6 +51,7 @@ CFMutableDictionaryRef POPDictionaryCreateMutableWeakPointerToWeakPointer(NSUInt
   return CFDictionaryCreateMutable(NULL, capacity, &kcb, &vcb);
 }
 
+///创建一个mutable字典 weak->strong
 CFMutableDictionaryRef POPDictionaryCreateMutableWeakPointerToStrongObject(NSUInteger capacity)
 {
   CFDictionaryKeyCallBacks kcb = kCFTypeDictionaryKeyCallBacks;
@@ -66,6 +68,7 @@ CFMutableDictionaryRef POPDictionaryCreateMutableWeakPointerToStrongObject(NSUIn
   return CFDictionaryCreateMutable(NULL, capacity, &kcb, &vcb);
 }
 
+///返回objctype是否符合POPValueType
 static bool FBCompareTypeEncoding(const char *objctype, POPValueType type)
 {
   switch (type)
@@ -142,6 +145,7 @@ static bool FBCompareTypeEncoding(const char *objctype, POPValueType type)
   }
 }
 
+///从types中的前length个中取第一个符合objctype的项
 POPValueType POPSelectValueType(const char *objctype, const POPValueType *types, size_t length)
 {
   if (NULL != objctype) {
@@ -153,6 +157,7 @@ POPValueType POPSelectValueType(const char *objctype, const POPValueType *types,
   return kPOPValueUnknown;
 }
 
+///根据obj类型 返回POPValueType
 POPValueType POPSelectValueType(id obj, const POPValueType *types, size_t length)
 {
   if ([obj isKindOfClass:[NSValue class]]) {
@@ -166,7 +171,7 @@ POPValueType POPSelectValueType(id obj, const POPValueType *types, size_t length
 const POPValueType kPOPAnimatableAllTypes[12] = {kPOPValueInteger, kPOPValueFloat, kPOPValuePoint, kPOPValueSize, kPOPValueRect, kPOPValueEdgeInsets, kPOPValueAffineTransform, kPOPValueTransform, kPOPValueRange, kPOPValueColor, kPOPValueSCNVector3, kPOPValueSCNVector4};
 
 const POPValueType kPOPAnimatableSupportTypes[10] = {kPOPValueInteger, kPOPValueFloat, kPOPValuePoint, kPOPValueSize, kPOPValueRect, kPOPValueEdgeInsets, kPOPValueColor, kPOPValueSCNVector3, kPOPValueSCNVector4};
-
+///类型对应字符串描述
 NSString *POPValueTypeToString(POPValueType t)
 {
   switch (t) {
@@ -201,6 +206,7 @@ NSString *POPValueTypeToString(POPValueType t)
   }
 }
 
+///将vec转为NSNumber NSValue
 id POPBox(VectorConstRef vec, POPValueType type, bool force)
 {
   if (NULL == vec)
@@ -245,6 +251,7 @@ id POPBox(VectorConstRef vec, POPValueType type, bool force)
   }
 }
 
+///将value转为向量
 static VectorRef vectorize(id value, POPValueType type)
 {
   Vector *vec = NULL;
@@ -293,6 +300,7 @@ static VectorRef vectorize(id value, POPValueType type)
   return VectorRef(vec);
 }
 
+///animationType value对应类型  count 返回值项个数
 VectorRef POPUnbox(id value, POPValueType &animationType, NSUInteger &count, bool validate)
 {
   if (nil == value) {

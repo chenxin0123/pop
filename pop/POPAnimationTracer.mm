@@ -1,4 +1,4 @@
-/**
+/**!
  Copyright (c) 2014-present, Facebook, Inc.
  All rights reserved.
  
@@ -17,16 +17,17 @@
 
 @implementation POPAnimationTracer
 {
-  __weak POPAnimation *_animation;
-  POPAnimationState *_animationState;
-  NSMutableArray *_events;
-  BOOL _animationHasVelocity;
+  __weak POPAnimation *_animation;//要跟踪的动画
+  POPAnimationState *_animationState;//动画状态
+  NSMutableArray *_events;//动画
+  BOOL _animationHasVelocity;//动画是否有速度
 }
 @synthesize shouldLogAndResetOnCompletion = _shouldLogAndResetOnCompletion;
 
 static POPAnimationEvent *create_event(POPAnimationTracer *self, POPAnimationEventType type, id value = nil, bool recordAnimation = false)
 {
   bool useLocalTime = 0 != self->_animationState->startTime;
+    //动画累计执行时间
   CFTimeInterval time = useLocalTime
     ? self->_animationState->lastTime - self->_animationState->startTime
     : self->_animationState->lastTime;
@@ -34,6 +35,7 @@ static POPAnimationEvent *create_event(POPAnimationTracer *self, POPAnimationEve
   POPAnimationEvent *event;
   __strong POPAnimation* animation = self->_animation;
 
+    //设置值
   if (!value) {
     event = [[POPAnimationEvent alloc] initWithType:type time:time];
   } else {
@@ -61,6 +63,9 @@ static POPAnimationEvent *create_event(POPAnimationTracer *self, POPAnimationEve
   }
   return self;
 }
+
+
+/** 对应POPAnimationEventType中的每种值 */
 
 - (void)readPropertyValue:(id)aValue
 {
@@ -151,23 +156,27 @@ static POPAnimationEvent *create_event(POPAnimationTracer *self, POPAnimationEve
   [_events addObject:event];
 }
 
+///开始记录
 - (void)start
 {
   POPAnimationState *s = POPAnimationGetState(_animation);
   s->tracing = true;
 }
 
+///停止记录
 - (void)stop
 {
   POPAnimationState *s = POPAnimationGetState(_animation);
   s->tracing = false;
 }
 
+///清空_events
 - (void)reset
 {
   [_events removeAllObjects];
 }
 
+///返回_events拷贝
 - (NSArray *)allEvents
 {
   return [_events copy];
@@ -178,6 +187,7 @@ static POPAnimationEvent *create_event(POPAnimationTracer *self, POPAnimationEve
   return [self eventsWithType:kPOPAnimationEventPropertyWrite];
 }
 
+///_events中POPAnimationEventType类型为aType的数组
 - (NSArray *)eventsWithType:(POPAnimationEventType)aType
 {
   NSMutableArray *array = [NSMutableArray array];

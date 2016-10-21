@@ -1,4 +1,4 @@
-/**
+/**!
  Copyright (c) 2014-present, Facebook, Inc.
  All rights reserved.
 
@@ -111,7 +111,7 @@ namespace POP {
   };//struct Vector2 end
 
   template<typename T>
-  const typename Vector2<T>::_data Vector2<T>::_v = { &Vector2<T>::x, &Vector2<T>::y };
+    const typename Vector2<T>::_data Vector2<T>::_v = { &Vector2<T>::x, &Vector2<T>::y };
 
   /** Fixed three-size vector class */
   template <typename T>
@@ -318,7 +318,7 @@ namespace POP {
     // Vector4r support
     Vector4r vector4r() const;
 
-    // CGFloat support
+    // CGFloat support V1
     static Vector *new_cg_float(CGFloat f);
 
     // CGPoint support
@@ -343,7 +343,7 @@ namespace POP {
     CGAffineTransform cg_affine_transform() const;
     static Vector *new_cg_affine_transform(const CGAffineTransform &t);
 
-    // CGColorRef support
+    // CGColorRef support 必须是V4
     CGColorRef cg_color() const CF_RETURNS_RETAINED;
     static Vector *new_cg_color(CGColorRef color);
     
