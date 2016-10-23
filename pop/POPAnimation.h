@@ -17,6 +17,7 @@
 /**
  @abstract The abstract animation base class.
  @discussion Instantiate and use one of the concrete animation subclasses.
+ 只能实例化子类
  */
 @interface POPAnimation : NSObject
 

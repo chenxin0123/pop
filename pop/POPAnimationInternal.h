@@ -197,6 +197,7 @@ extern _POPAnimationState *POPAnimationGetState(POPAnimation *a);
 - (void)pop_animation:(POPAnimation *)anim didReachProgress:(CGFloat)progress;
 @end
 
+///_POPSpringAnimationState : _POPPropertyAnimationState : _POPAnimationState
 struct _POPAnimationState
 {
   id __unsafe_unretained self;//对应的动画
@@ -214,13 +215,13 @@ struct _POPAnimationState
   POPAnimationCompletionBlock completionBlock;
   POPAnimationDidApplyBlock animationDidApplyBlock;
     
-  NSMutableDictionary *dict;
+  NSMutableDictionary *dict;///对应animation中valueForUndefinedKey方法
   POPAnimationTracer *tracer;
   CGFloat progress;//动画进度
   NSInteger repeatCount;//循环次数
   
   bool active:1;//active && !paused 表示动画执行
-  bool paused:1;
+  bool paused:1;//是否暂停的
   bool removedOnCompletion:1;
   
     ///代理是否能够响应对应的方法
@@ -236,7 +237,7 @@ struct _POPAnimationState
   bool userSpecifiedDynamics:1;
   bool autoreverses:1;
   bool repeatForever:1;
-  bool customFinished:1;
+  bool customFinished:1;//kPOPAnimationCustom时使用 表示动画是否结束
 
   _POPAnimationState(id __unsafe_unretained anim) :
   self(anim),
@@ -294,6 +295,7 @@ struct _POPAnimationState
     return delegate;
   }
   
+    //设置代理
   void setDelegate(id d) {
     if (d != delegate) {
       delegate = d;
@@ -310,6 +312,7 @@ struct _POPAnimationState
     return paused;
   }
   
+    //设置是否暂停
   void setPaused(bool f) {
     if (f != paused) {
       paused = f;
@@ -343,7 +346,7 @@ struct _POPAnimationState
     // ensure values for running animation
     bool running = active && !paused;
     if (running) {
-      willRun(started, obj);
+      willRun(started, obj);//虚函数 子类实现
     }
 
     // handle start
@@ -380,6 +383,7 @@ struct _POPAnimationState
     setPaused(true);
   }
   
+    ///调用代理方法 block 以及tracer方法
   virtual void handleDidStart()
   {
     if (delegateDidStart) {
@@ -426,6 +430,7 @@ struct _POPAnimationState
     return false;
   }
   
+    //前进
   bool advanceTime(CFTimeInterval time, id obj) {
     bool advanced = false;
     bool computedProgress = false;
@@ -474,7 +479,7 @@ struct _POPAnimationState
   virtual bool advance(CFTimeInterval time, CFTimeInterval dt, id obj) { return false; }
   virtual void computeProgress() {}
   virtual void delegateProgress() {}
-
+ 
   virtual void delegateApply() {
     if (delegateDidApply) {
       ActionEnabler enabler;

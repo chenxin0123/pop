@@ -637,18 +637,19 @@ static void stopAndCleanup(POPAnimator *self, POPAnimatorItemRef item, bool shou
   return observers;
 }
 
+///每个obj对应一个NSMutableDictionary 存放在_dict中
 - (void)addAnimation:(POPAnimation *)anim forObject:(id)obj key:(NSString *)key
 {
   if (!anim || !obj) {
     return;
   }
 
-  // support arbitrarily many nil keys
+  // support arbitrarily many nil keys 未指定key 默认生成一个
   if (!key) {
     key = [[NSUUID UUID] UUIDString];
   }
 
-  // lock
+  // lock 线程安全
   OSSpinLockLock(&_lock);
 
   // get key, animation dict associated with object
@@ -683,7 +684,7 @@ static void stopAndCleanup(POPAnimator *self, POPAnimatorItemRef item, bool shou
   _list.push_back(item);
   _pendingList.push_back(item);
 
-  // support animation re-use, reset all animation state
+  // support animation re-use, reset all animation state 如果是重用的动画 reset一下
   POPAnimationGetState(anim)->reset(true);
 
   // update display link

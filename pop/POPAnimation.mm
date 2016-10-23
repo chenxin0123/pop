@@ -34,6 +34,7 @@ using namespace POP;
   return nil;
 }
 
+///私有的实例方法
 - (id)_init
 {
   self = [super init];
@@ -78,6 +79,7 @@ using namespace POP;
   _state->setPaused(paused ? true : false);
 }
 
+///重复次数 一来一回算两次 所以set的时候需要*2 get的时候/2
 - (NSInteger)repeatCount
 {
   if (_state->autoreverses) {
@@ -90,6 +92,7 @@ using namespace POP;
 - (void)setRepeatCount:(NSInteger)repeatCount
 {
   if (repeatCount > 0) {
+      //限制最大值
     if (repeatCount > NSIntegerMax / 2) {
       repeatCount = NSIntegerMax / 2;
     }
@@ -117,14 +120,31 @@ using namespace POP;
   }
 }
 
+//_state->type
 FB_PROPERTY_GET(POPAnimationState, type, POPAnimationType);
+
+//_state->animationDidStartBlock
 DEFINE_RW_PROPERTY_OBJ_COPY(POPAnimationState, animationDidStartBlock, setAnimationDidStartBlock:, POPAnimationDidStartBlock);
+
+//_state->animationDidReachToValueBlock
 DEFINE_RW_PROPERTY_OBJ_COPY(POPAnimationState, animationDidReachToValueBlock, setAnimationDidReachToValueBlock:, POPAnimationDidReachToValueBlock);
+
+//_state->completionBlock
 DEFINE_RW_PROPERTY_OBJ_COPY(POPAnimationState, completionBlock, setCompletionBlock:, POPAnimationCompletionBlock);
+
+//_state->animationDidApplyBlock
 DEFINE_RW_PROPERTY_OBJ_COPY(POPAnimationState, animationDidApplyBlock, setAnimationDidApplyBlock:, POPAnimationDidApplyBlock);
+
+//_state->name
 DEFINE_RW_PROPERTY_OBJ_COPY(POPAnimationState, name, setName:, NSString*);
+
+//_state->beginTime
 DEFINE_RW_PROPERTY(POPAnimationState, beginTime, setBeginTime:, CFTimeInterval);
+
+//_state->removedOnCompletion
 DEFINE_RW_FLAG(POPAnimationState, removedOnCompletion, removedOnCompletion, setRemovedOnCompletion:);
+
+//_state->repeatForever
 DEFINE_RW_FLAG(POPAnimationState, repeatForever, repeatForever, setRepeatForever:);
 
 - (id)valueForUndefinedKey:(NSString *)key
@@ -143,6 +163,7 @@ DEFINE_RW_FLAG(POPAnimationState, repeatForever, repeatForever, setRepeatForever
   }
 }
 
+//不存在则创建
 - (POPAnimationTracer *)tracer
 {
   if (!_state->tracer) {
