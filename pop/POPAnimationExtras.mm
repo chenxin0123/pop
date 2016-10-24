@@ -1,4 +1,4 @@
-/**
+/**!~
  Copyright (c) 2014-present, Facebook, Inc.
  All rights reserved.
  
@@ -20,6 +20,7 @@ UIKIT_EXTERN float UIAnimationDragCoefficient(); // UIKit private drag coefficie
 
 #import "POPMath.h"
 
+//默认1 大于1的话表示模拟器的慢速动画启用
 CGFloat POPAnimationDragCoefficient()
 {
 #if TARGET_IPHONE_SIMULATOR
@@ -31,6 +32,7 @@ CGFloat POPAnimationDragCoefficient()
 
 @implementation CAAnimation (POPAnimationExtras)
 
+///设置speed
 - (void)pop_applyDragCoefficient
 {
   CGFloat k = POPAnimationDragCoefficient();
@@ -50,6 +52,7 @@ static const CGFloat POPBouncy3SpeedNormalizedMin = 0.5;
 static const CGFloat POPBouncy3SpeedNormalizedMax = 200;
 static const CGFloat POPBouncy3FrictionInterpolationMax = 0.01;
 
+//通过弹力 速度 计算张力 摩擦力
 + (void)convertBounciness:(CGFloat)bounciness speed:(CGFloat)speed toTension:(CGFloat *)outTension friction:(CGFloat *)outFriction mass:(CGFloat *)outMass
 {
   double b = POPNormalize(bounciness / POPBouncy3NormalizationScale, 0, POPBouncy3NormalizationRange);
@@ -76,6 +79,7 @@ static const CGFloat POPBouncy3FrictionInterpolationMax = 0.01;
   }
 }
 
+//通过张力 摩擦力 计算弹力 速度
 + (void)convertTension:(CGFloat)tension friction:(CGFloat)friction toBounciness:(CGFloat *)outBounciness speed:(CGFloat *)outSpeed
 {
   // Convert to QC values, in which our calculations are done.

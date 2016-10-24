@@ -30,7 +30,7 @@
 #endif
 
 /**
- @abstract The optional animator delegate.
+ @abstract The optional animator delegate. 代理方法每一帧都会调用
  */
 @property (weak, nonatomic) id<POPAnimatorDelegate> delegate;
 

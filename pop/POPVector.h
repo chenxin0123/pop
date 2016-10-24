@@ -197,6 +197,7 @@ namespace POP {
   struct Vector4
   {
   private:
+      
     typedef T Vector4<T>::* const _data[4];
     static const _data _v;
 

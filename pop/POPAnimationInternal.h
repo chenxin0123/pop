@@ -231,7 +231,7 @@ struct _POPAnimationState
   bool delegateDidApply:1;
   bool delegateDidReachToValue:1;
   
-  bool additive:1;
+  bool additive:1;//增量的动画 add rather than set
   bool didReachToValue:1;
   bool tracing:1; // corresponds to tracer started
   bool userSpecifiedDynamics:1;
@@ -326,13 +326,15 @@ struct _POPAnimationState
     return progress;
   }
   
-  /* returns true if started */
+  /* returns true if started 
+     offset _slowMotionAccumulator
+   */
   bool startIfNeeded(id obj, CFTimeInterval time, CFTimeInterval offset)
   {
     bool started = false;
     
     // detect start based on time
-    if (0 == startTime && time >= beginTime + offset) {
+    if (0 == startTime && time >= beginTime + offset) {//未开始
       
       // activate & unpause
       active = true;
@@ -357,6 +359,7 @@ struct _POPAnimationState
     return started;
   }
 
+    ////停止 重置 开始
   void stop(bool removing, bool done) {
     if (active)
     {
@@ -371,7 +374,7 @@ struct _POPAnimationState
       
       handleDidStop(done);
     } else {
-      
+      //还未开始就被停止
       // stopped before even started
       // delegate start and stop regardless; matches CA behavior
       if (!isStarted()) {
@@ -383,7 +386,7 @@ struct _POPAnimationState
     setPaused(true);
   }
   
-    ///调用代理方法 block 以及tracer方法
+    ///调用代理方法 block 以及tracer记录事件
   virtual void handleDidStart()
   {
     if (delegateDidStart) {
@@ -402,6 +405,7 @@ struct _POPAnimationState
     }
   }
   
+    //调用代理方法 block tracer记录时间
   void handleDidStop(BOOL done)
   {
     if (delegateDidStop) {
@@ -430,7 +434,7 @@ struct _POPAnimationState
     return false;
   }
   
-    //前进
+    //前进到time
   bool advanceTime(CFTimeInterval time, id obj) {
     bool advanced = false;
     bool computedProgress = false;
@@ -480,6 +484,7 @@ struct _POPAnimationState
   virtual void computeProgress() {}
   virtual void delegateProgress() {}
  
+    //通知代理以及调用block 每一帧都会调用
   virtual void delegateApply() {
     if (delegateDidApply) {
       ActionEnabler enabler;

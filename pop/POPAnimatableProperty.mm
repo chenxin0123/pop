@@ -1,4 +1,4 @@
-/**
+/**!
   Copyright (c) 2014-present, Facebook, Inc.
   All rights reserved.
 
@@ -16,7 +16,7 @@
 #import "POPDefines.h"
 #import "POPLayerExtras.h"
 
-// common threshold definitions
+// common threshold definitions 阈值默认值
 static CGFloat const kPOPThresholdColor = 0.01;
 static CGFloat const kPOPThresholdPoint = 1.0;
 static CGFloat const kPOPThresholdOpacity = 0.01;
@@ -1114,6 +1114,7 @@ static POPStaticAnimatablePropertyState _staticStates[] =
 
 };
 
+///返回_staticStates中对应名称的索引 POPStaticAnimatablePropertyState
 static NSUInteger staticIndexWithName(NSString *aName)
 {
   NSUInteger idx = 0;
@@ -1129,6 +1130,7 @@ static NSUInteger staticIndexWithName(NSString *aName)
 
 /**
  Concrete static property class.
+ POPStaticAnimatablePropertyState 把属性存到POPStaticAnimatablePropertyState变量中
  */
 @interface POPStaticAnimatableProperty : POPAnimatableProperty
 {
@@ -1241,6 +1243,8 @@ static POPAnimatableProperty *placeholder = nil;
   return [super allocWithZone:zone];
 }
 
+///POPMutableAnimatableProperty -> POPConcreteAnimatableProperty
+///其他直接返回self
 - (id)copyWithZone:(NSZone *)zone
 {
   if ([self isKindOfClass:[POPMutableAnimatableProperty class]]) {
@@ -1251,6 +1255,7 @@ static POPAnimatableProperty *placeholder = nil;
   }
 }
 
+///返回POPMutableAnimatableProperty
 - (id)mutableCopyWithZone:(NSZone *)zone
 {
   POPMutableAnimatableProperty *copyProperty = [[POPMutableAnimatableProperty alloc] init];
@@ -1266,6 +1271,7 @@ static POPAnimatableProperty *placeholder = nil;
   return [self propertyWithName:aName initializer:NULL];
 }
 
+///返回POPStaticAnimatableProperty或者POPMutableAnimatableProperty
 + (id)propertyWithName:(NSString *)aName initializer:(void (^)(POPMutableAnimatableProperty *prop))aBlock
 {
   POPAnimatableProperty *prop = nil;
@@ -1283,6 +1289,7 @@ static POPAnimatableProperty *placeholder = nil;
   NSUInteger staticIdx = staticIndexWithName(aName);
 
   if (NSNotFound != staticIdx) {
+      //pop内置的动画
     POPStaticAnimatableProperty *staticProp = [[POPStaticAnimatableProperty alloc] init];
     staticProp->_state = &_staticStates[staticIdx];
     _propertyDict[aName] = staticProp;

@@ -16,6 +16,7 @@
 
 /**
  @abstract Called on each observer after animator has advanced. Core Animation actions are disabled by default.
+ 方法每一帧都会被调用
  */
 - (void)animatorDidAnimate:(POPAnimator *)animator;
 

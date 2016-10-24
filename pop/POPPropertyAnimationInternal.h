@@ -35,8 +35,8 @@ struct _POPPropertyAnimationState : _POPAnimationState
   VectorRef fromVec;
   VectorRef toVec;
   VectorRef currentVec;
-  VectorRef previousVec;
-  VectorRef previous2Vec;
+  VectorRef previousVec;//上个值
+  VectorRef previous2Vec;//上上个值
   VectorRef velocityVec;
   VectorRef originalVelocityVec;
   VectorRef distanceVec;
@@ -87,6 +87,7 @@ struct _POPPropertyAnimationState : _POPAnimationState
     return 0 != roundingFactor;
   }
 
+    //值的个数
   bool hasValue() {
     return 0 != valueCount;
   }
@@ -105,9 +106,10 @@ struct _POPPropertyAnimationState : _POPAnimationState
     return false;
   }
 
-  // returns a copy of the currentVec, rounding if needed
+  // returns a copy of the currentVec, rounding if needed 动画当前值
   VectorRef currentValue() {
     VectorRef vec = VectorRef(Vector::new_vector(currentVec.get()));
+      //像素对齐
     if (shouldRound()) {
       vec->subRound(1 / roundingFactor);
     }

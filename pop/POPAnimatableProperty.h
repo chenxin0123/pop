@@ -1,4 +1,4 @@
-/**
+/**!
  Copyright (c) 2014-present, Facebook, Inc.
  All rights reserved.
  
@@ -16,7 +16,11 @@
 @class POPMutableAnimatableProperty;
 
 /**
- @abstract Describes an animatable property.
+ @abstract Describes an animatable property. Cluster class.
+ POPConcreteAnimatableProperty : POPAnimatableProperty
+ POPStaticAnimatableProperty : POPAnimatableProperty POPStaticAnimatablePropertyState 把属性存到POPStaticAnimatablePropertyState变量中
+ POPMutableAnimatableProperty : POPAnimatableProperty readonly -> readwrite
+ POPPlaceholderAnimatableProperty : POPAnimatableProperty 单例 Singleton placeholder property class to support class cluster.
  */
 @interface POPAnimatableProperty : NSObject <NSCopying, NSMutableCopying>
 

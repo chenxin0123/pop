@@ -18,6 +18,10 @@
  @abstract The abstract animation base class.
  @discussion Instantiate and use one of the concrete animation subclasses.
  只能实例化子类
+ POPCustomAnimation : POPAnimation
+ POPBasicAnimation : POPPropertyAnimation : POPAnimation
+ POPSpringAnimation : POPPropertyAnimation
+ POPDecayAnimation : POPPropertyAnimation
  */
 @interface POPAnimation : NSObject
 

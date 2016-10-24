@@ -51,7 +51,8 @@ CFMutableDictionaryRef POPDictionaryCreateMutableWeakPointerToWeakPointer(NSUInt
   return CFDictionaryCreateMutable(NULL, capacity, &kcb, &vcb);
 }
 
-///创建一个mutable字典 weak->strong
+///创建一个mutable字典 unsafe_unretain->strong 并不是weak
+///由于重写了hash和equal 所以并不是对野指针发送消息
 CFMutableDictionaryRef POPDictionaryCreateMutableWeakPointerToStrongObject(NSUInteger capacity)
 {
   CFDictionaryKeyCallBacks kcb = kCFTypeDictionaryKeyCallBacks;

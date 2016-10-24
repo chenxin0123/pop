@@ -51,11 +51,11 @@ static const uint64_t kDisplayTimerFrequency = 60ull; // Hz
 class POPAnimatorItem
 {
 public:
-  id __weak object;
+  id __weak object;//动画的对象
   NSString *key;
   POPAnimation *animation;
-  NSInteger refCount;
-  id __unsafe_unretained unretainedObject;
+  NSInteger refCount;//引用计数
+  id __unsafe_unretained unretainedObject;//用来从POPAnimator的_dict中取数据
 
   POPAnimatorItem(id o, NSString *k, POPAnimation *a) POP_NOTHROW
   {
@@ -98,14 +98,14 @@ static uint64_t _displayTimerFrequency = kDisplayTimerFrequency;
   BOOL _displayTimerRunning;
   int32_t _enqueuedRender;
 #endif
-  POPAnimatorItemList _list;
-  CFMutableDictionaryRef _dict;
+  POPAnimatorItemList _list;//动画的列表
+  CFMutableDictionaryRef _dict;//weak->strong
   NSMutableArray *_observers;
-  POPAnimatorItemList _pendingList;
-  CFRunLoopObserverRef _pendingListObserver;
-  CFTimeInterval _slowMotionStartTime;
-  CFTimeInterval _slowMotionLastTime;
-  CFTimeInterval _slowMotionAccumulator;
+  POPAnimatorItemList _pendingList;//未开始的动画列表
+  CFRunLoopObserverRef _pendingListObserver;//kCFRunLoopBeforeWaiting | kCFRunLoopExit
+  CFTimeInterval _slowMotionStartTime;//慢速动画开始时间
+  CFTimeInterval _slowMotionLastTime;//慢速动画最后一次时间
+  CFTimeInterval _slowMotionAccumulator;//慢速动画造成的时间累计延迟时间
   CFTimeInterval _beginTime;
   OSSpinLock _lock;
   BOOL _disableDisplayLink;
@@ -137,7 +137,8 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 }
 #endif
 
-// call while holding lock
+// call while holding lock 持有锁的时候调用
+//暂停或者取消暂停 _displayLink
 static void updateDisplayLink(POPAnimator *self)
 {
   BOOL paused = (0 == self->_observers.count && self->_list.empty()) || self->_disableDisplayLink;
@@ -172,21 +173,22 @@ static void updateDisplayLink(POPAnimator *self)
 #endif
 }
 
+//每一帧
 static void updateAnimatable(id obj, POPPropertyAnimationState *anim, bool shouldAvoidExtraneousWrite = false)
 {
   // handle user-initiated stop or pause; halt animation
   if (!anim->active || anim->paused)
     return;
 
-  if (anim->hasValue()) {
+  if (anim->hasValue()) {//有值才能动画
     pop_animatable_write_block write = anim->property.writeBlock;
     if (NULL == write)
       return;
 
-    // current animation value
+    // current animation value 
     VectorRef currentVec = anim->currentValue();
 
-    if (!anim->additive) {
+    if (!anim->additive) {//set
 
       // if avoiding extraneous writes and we have a read block defined
       if (shouldAvoidExtraneousWrite) {
@@ -195,6 +197,7 @@ static void updateAnimatable(id obj, POPPropertyAnimationState *anim, bool shoul
         if (read) {
           // compare current animation value with object value
           Vector4r currentValue = currentVec->vector4r();
+            //读取真实值 如果真实值跟动画当前值相同 则返回
           Vector4r objectValue = read_values(read, obj, anim->valueCount);
           if (objectValue == currentValue) {
             return;
@@ -208,10 +211,11 @@ static void updateAnimatable(id obj, POPPropertyAnimationState *anim, bool shoul
 
       // write value
       write(obj, currentVec->data());
+        //记录事件
       if (anim->tracing) {
         [anim->tracer writePropertyValue:POPBox(currentVec, anim->valueType, true)];
       }
-    } else {
+    } else {//add 增量
       pop_animatable_read_block read = anim->property.readBlock;
       NSCAssert(read, @"additive requires an animatable property readBlock");
       if (NULL == read) {
@@ -224,7 +228,7 @@ static void updateAnimatable(id obj, POPPropertyAnimationState *anim, bool shoul
       // current value
       Vector4r currentValue = currentVec->vector4r();
       
-      // determine animation change
+      // determine animation change 计算增量
       if (anim->previousVec) {
         Vector4r previousValue = anim->previousVec->vector4r();
         currentValue -= previousValue;
@@ -251,6 +255,7 @@ static void updateAnimatable(id obj, POPPropertyAnimationState *anim, bool shoul
   }
 }
 
+///进行动画 每一帧
 static void applyAnimationTime(id obj, POPAnimationState *state, CFTimeInterval time)
 {
   if (!state->advanceTime(time, obj)) {
@@ -265,6 +270,7 @@ static void applyAnimationTime(id obj, POPAnimationState *state, CFTimeInterval 
   state->delegateApply();
 }
 
+//动画reach to toValue
 static void applyAnimationToValue(id obj, POPAnimationState *state)
 {
   POPPropertyAnimationState *ps = dynamic_cast<POPPropertyAnimationState*>(state);
@@ -281,6 +287,7 @@ static void applyAnimationToValue(id obj, POPAnimationState *state)
   state->delegateApply();
 }
 
+//将动画移除 并且如果无其他动画 将对应的动画字典从_dict移除
 static POPAnimation *deleteDictEntry(POPAnimator *self, id __unsafe_unretained obj, NSString *key, BOOL cleanup = YES)
 {
   POPAnimation *anim = nil;
@@ -309,6 +316,7 @@ static POPAnimation *deleteDictEntry(POPAnimator *self, id __unsafe_unretained o
   return anim;
 }
 
+///停止动画 从字典中移除动画 从_list中移除POPAnimatorItemRef
 static void stopAndCleanup(POPAnimator *self, POPAnimatorItemRef item, bool shouldRemove, bool finished)
 {
   // remove
@@ -338,6 +346,7 @@ static void stopAndCleanup(POPAnimator *self, POPAnimatorItemRef item, bool shou
   }
 }
 
+//单例
 + (id)sharedAnimator
 {
   static POPAnimator* _animator = nil;
@@ -372,6 +381,7 @@ static void stopAndCleanup(POPAnimator *self, POPAnimatorItemRef item, bool shou
 
 #pragma mark - Lifecycle
 
+///_displayLink.paused = YES; NSRunLoopCommonModes
 - (instancetype)init
 {
   self = [super init];
@@ -473,6 +483,7 @@ static void stopAndCleanup(POPAnimator *self, POPAnimatorItemRef item, bool shou
   OSSpinLockUnlock(&_lock);
 }
 
+//移除_pendingListObserver
 - (void)_clearPendingListObserver
 {
   if (_pendingListObserver) {
@@ -482,6 +493,7 @@ static void stopAndCleanup(POPAnimator *self, POPAnimatorItemRef item, bool shou
   }
 }
 
+///在runloop进入等待前调用_processPendingList
 - (void)_scheduleProcessPendingList
 {
   // see WebKit for magic numbers, eg http://trac.webkit.org/changeset/166540
@@ -507,13 +519,15 @@ static void stopAndCleanup(POPAnimator *self, POPAnimatorItemRef item, bool shou
   OSSpinLockUnlock(&_lock);
 }
 
+///每次displayLink触发都会调用
 - (void)_renderTime:(CFTimeInterval)time items:(std::list<POPAnimatorItemRef>)items
 {
   // begin transaction with actions disabled
+    //禁止隐式动画
   [CATransaction begin];
   [CATransaction setDisableActions:YES];
 
-  // notify delegate
+  // notify delegate 代理方法每一帧都会调用
   __strong __typeof__(_delegate) delegate = _delegate;
   [delegate animatorWillAnimate:self];
 
@@ -556,6 +570,7 @@ static void stopAndCleanup(POPAnimator *self, POPAnimatorItemRef item, bool shou
   [CATransaction commit];
 }
 
+///每一帧都会触发
 - (void)_renderTime:(CFTimeInterval)time item:(POPAnimatorItemRef)item
 {
   id obj = item->object;
@@ -577,10 +592,11 @@ static void stopAndCleanup(POPAnimator *self, POPAnimatorItemRef item, bool shou
       applyAnimationTime(obj, state, time);
 
       FBLogAnimDebug(@"time:%f running:%@", time, item->animation);
-      if (state->isDone()) {
+      if (state->isDone()) {//已完成
         // set end value
         applyAnimationToValue(obj, state);
 
+          //一轮完成 继续下一轮
         state->repeatCount--;
         if (state->repeatForever || state->repeatCount > 0) {
           if ([anim isKindOfClass:[POPPropertyAnimation class]]) {
@@ -599,7 +615,7 @@ static void stopAndCleanup(POPAnimator *self, POPAnimatorItemRef item, bool shou
               } else {
                 propAnim.toValue = oldFromValue;
               }
-            } else {
+            } else {//POPDecayAnimation多次repeat会一直往前
               if (state->type == kPOPAnimationDecay) {
                 POPDecayAnimation *decayAnimation = (POPDecayAnimation *)propAnim;
                 id originalVelocity = decayAnimation.originalVelocity;
@@ -610,10 +626,11 @@ static void stopAndCleanup(POPAnimator *self, POPAnimatorItemRef item, bool shou
             }
           }
 
+            //停止 重置 开始
           state->stop(NO, NO);
           state->reset(true);
-
           state->startIfNeeded(obj, time, _slowMotionAccumulator);
+            
         } else {
           stopAndCleanup(self, item, state->removedOnCompletion, YES);
         }
@@ -649,7 +666,7 @@ static void stopAndCleanup(POPAnimator *self, POPAnimatorItemRef item, bool shou
     key = [[NSUUID UUID] UUIDString];
   }
 
-  // lock 线程安全
+  // lock
   OSSpinLockLock(&_lock);
 
   // get key, animation dict associated with object
@@ -666,9 +683,11 @@ static void stopAndCleanup(POPAnimator *self, POPAnimatorItemRef item, bool shou
       // unlock
       OSSpinLockUnlock(&_lock);
 
+        //同一个动画重复添加
       if (existingAnim == anim) {
         return;
       }
+        //新添加的动画 覆盖旧的动画
       [self removeAnimationForObject:obj key:key cleanupDict:NO];
         
       // lock
@@ -739,6 +758,7 @@ static void stopAndCleanup(POPAnimator *self, POPAnimatorItemRef item, bool shou
   }
 }
 
+///移除动画
 - (void)removeAnimationForObject:(id)obj key:(NSString *)key cleanupDict:(BOOL)cleanupDict
 {
   POPAnimation *anim = deleteDictEntry(self, obj, key, cleanupDict);
@@ -828,6 +848,8 @@ static void stopAndCleanup(POPAnimator *self, POPAnimatorItemRef item, bool shou
 #endif
 }
 
+///Returns the current absolute time, in seconds.
+///返回当前的动画时间 包含慢速动画的处理
 - (CFTimeInterval)_currentRenderTime
 {
   CFTimeInterval time = CACurrentMediaTime();
@@ -838,14 +860,14 @@ static void stopAndCleanup(POPAnimator *self, POPAnimatorItemRef item, bool shou
   float f = POPAnimationDragCoefficient();
 
   if (f > 1.0) {
-    if (!_slowMotionStartTime) {
+    if (!_slowMotionStartTime) {//刚开始慢速动画
       _slowMotionStartTime = time;
     } else {
       time = (time - _slowMotionStartTime) / f + _slowMotionStartTime;
       _slowMotionLastTime = time;
     }
-  } else if (_slowMotionStartTime) {
-    CFTimeInterval dt = (_slowMotionLastTime - time);
+  } else if (_slowMotionStartTime) {//刚关闭慢速动画
+    CFTimeInterval dt = (_slowMotionLastTime - time);//<0
     time += dt;
     _slowMotionAccumulator += dt;
     _slowMotionStartTime = 0;
@@ -855,6 +877,7 @@ static void stopAndCleanup(POPAnimator *self, POPAnimatorItemRef item, bool shou
   return time;
 }
 
+///_displayLink回调
 - (void)render
 {
   CFTimeInterval time = [self _currentRenderTime];
