@@ -1,4 +1,4 @@
-/**
+/**!
  Copyright (c) 2014-present, Facebook, Inc.
  All rights reserved.
  
@@ -19,7 +19,8 @@
 using namespace POP;
 
 /**
- Enumeration of supported animation types. 4种类型动画
+ Enumeration of supported animation types. 
+ Pop支持的4种类型动画
  */
 enum POPAnimationType
 {
@@ -48,12 +49,13 @@ typedef void (^POPAnimationDidApplyBlock)(POPAnimation *anim);
 
 /**
  The current animation value, updated while animation is progressing.
+ 当前值
  */
 @property (copy, nonatomic, readonly) id currentValue;
 
 /**
  An array of optional progress markers. For each marker specified, the animation delegate will be informed when progress meets or exceeds the value specified. Specifying values outside of the [0, 1] range will give undefined results.
- - (void)pop_animationDidReachToValue:(POPAnimation *)anim;将被调用
+ - (void)pop_animationDidReachToValue:(POPAnimation *)anim;将被调用 当动画的值到达该属性所指定的属性时 会通知代理
  */
 @property (copy, nonatomic) NSArray *progressMarkers;
 
@@ -201,7 +203,7 @@ extern _POPAnimationState *POPAnimationGetState(POPAnimation *a);
 struct _POPAnimationState
 {
   id __unsafe_unretained self;//对应的动画
-  POPAnimationType type;
+  POPAnimationType type;//动画类型
   NSString *name;
   NSUInteger ID;
   CFTimeInterval beginTime;
@@ -327,7 +329,8 @@ struct _POPAnimationState
   }
   
   /* returns true if started 
-     offset _slowMotionAccumulator
+     offset _slowMotionAccumulator 
+     每一帧都会调用
    */
   bool startIfNeeded(id obj, CFTimeInterval time, CFTimeInterval offset)
   {
@@ -425,7 +428,7 @@ struct _POPAnimationState
     }
   }
 
-  /* virtual functions */
+  /* virtual functions 默认返回NO 如果是Custom的动画 返回customFinished*/
   virtual bool isDone() {
     if (isCustom()) {
       return customFinished;
@@ -434,7 +437,7 @@ struct _POPAnimationState
     return false;
   }
   
-    //前进到time
+  // 前进到time 前进时间 time - lastTime; 每一帧都会调用
   bool advanceTime(CFTimeInterval time, id obj) {
     bool advanced = false;
     bool computedProgress = false;
@@ -478,8 +481,9 @@ struct _POPAnimationState
     return advanced;
   }
   
-    //虚函数
+ // 虚函数 每一帧都会调用
   virtual void willRun(bool started, id obj) {}
+ // 前进到time time - lastTime;
   virtual bool advance(CFTimeInterval time, CFTimeInterval dt, id obj) { return false; }
   virtual void computeProgress() {}
   virtual void delegateProgress() {}

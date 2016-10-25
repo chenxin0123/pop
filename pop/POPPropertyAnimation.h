@@ -1,4 +1,4 @@
-/**
+/**!
  Copyright (c) 2014-present, Facebook, Inc.
  All rights reserved.
 
@@ -59,6 +59,7 @@ typedef NS_OPTIONS(NSUInteger, POPAnimationClampFlags)
 /**
  @abstract The flag indicating whether values should be "added" each frame, rather than set.
  @discussion Addition may be type dependent. Defaults to NO.
+ 增量动画
  */
 @property (assign, nonatomic, getter = isAdditive) BOOL additive;
 

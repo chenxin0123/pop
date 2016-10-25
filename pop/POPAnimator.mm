@@ -1,4 +1,4 @@
-/**
+/**!
  Copyright (c) 2014-present, Facebook, Inc.
  All rights reserved.
  
@@ -173,7 +173,7 @@ static void updateDisplayLink(POPAnimator *self)
 #endif
 }
 
-//每一帧
+//每一帧 动画读写操作
 static void updateAnimatable(id obj, POPPropertyAnimationState *anim, bool shouldAvoidExtraneousWrite = false)
 {
   // handle user-initiated stop or pause; halt animation
@@ -465,11 +465,12 @@ static void stopAndCleanup(POPAnimator *self, POPAnimatorItemRef item, bool shou
 }
 
 #pragma mark - Utility
-
+//添加动画后 会注册一个observer 在runloop进入睡眠前进行回调
 - (void)_processPendingList
 {
   // rendering pending animations
   CFTimeInterval time = [self _currentRenderTime];
+    //0表示立即开始
   [self _renderTime:(0 != _beginTime) ? _beginTime : time items:_pendingList];
 
   // lock
@@ -641,6 +642,7 @@ static void stopAndCleanup(POPAnimator *self, POPAnimatorItemRef item, bool shou
 
 #pragma mark - API
 
+///返回observers的拷贝 无则nil
 - (NSArray *)observers
 {
   // lock
@@ -731,6 +733,7 @@ static void stopAndCleanup(POPAnimator *self, POPAnimatorItemRef item, bool shou
     return;
   }
 
+    //直接使用指针进行isEqual:和hash
   NSHashTable *animationSet = [[NSHashTable alloc] initWithOptions:NSHashTableObjectPointerPersonality capacity:animations.count];
   for (id animation in animations) {
     [animationSet addObject:animation];
@@ -738,7 +741,7 @@ static void stopAndCleanup(POPAnimator *self, POPAnimatorItemRef item, bool shou
 
   // lock
   OSSpinLockLock(&_lock);
-
+//从list中清除
   POPAnimatorItemRef item;
   for (auto iter = _list.begin(); iter != _list.end();) {
     item = *iter;
@@ -752,6 +755,7 @@ static void stopAndCleanup(POPAnimator *self, POPAnimatorItemRef item, bool shou
   // unlock
   OSSpinLockUnlock(&_lock);
 
+    //stop
   for (POPAnimation *anim in animations) {
     POPAnimationState *state = POPAnimationGetState(anim);
     state->stop(true, !state->active);
@@ -832,6 +836,7 @@ static void stopAndCleanup(POPAnimator *self, POPAnimatorItemRef item, bool shou
   return animation;
 }
 
+///返回刷新的时间间隔
 - (CFTimeInterval)refreshPeriod
 {
 #if TARGET_OS_IPHONE

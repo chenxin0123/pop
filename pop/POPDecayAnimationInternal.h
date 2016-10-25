@@ -1,4 +1,4 @@
-/**
+/**!
  Copyright (c) 2014-present, Facebook, Inc.
  All rights reserved.
 
@@ -19,6 +19,7 @@ static CGFloat kPOPAnimationDecayMinimalVelocityFactor = 5.;
 // default decay animation deceleration
 static CGFloat kPOPAnimationDecayDecelerationDefault = 0.998;
 
+//x out v 速度 count 值个数 dt 动画持续时间 dece 加速度 算出最终的位置 衰减公式
 static void decay_position(CGFloat *x, CGFloat *v, NSUInteger count, CFTimeInterval dt, CGFloat deceleration)
 {
   dt *= 1000;
@@ -42,7 +43,7 @@ static void decay_position(CGFloat *x, CGFloat *v, NSUInteger count, CFTimeInter
 
 struct _POPDecayAnimationState : _POPPropertyAnimationState
 {
-  double deceleration;
+  double deceleration;//减速
   CFTimeInterval duration;
 
   _POPDecayAnimationState(id __unsafe_unretained anim) :
@@ -68,6 +69,7 @@ struct _POPDecayAnimationState : _POPPropertyAnimationState
 
   }
 
+  // 计算动画持续时间
   void computeDuration() {
 
     // compute duration till threshold velocity
@@ -87,6 +89,7 @@ struct _POPDecayAnimationState : _POPPropertyAnimationState
     }
   }
 
+  //计算最终值
   void computeToValue() {
     // to value assuming final velocity as a factor of dynamics threshold
     // derived from v' = v * d^dt used in decay_position

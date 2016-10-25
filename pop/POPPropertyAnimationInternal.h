@@ -1,4 +1,4 @@
-/**
+/**!
  Copyright (c) 2014-present, Facebook, Inc.
  All rights reserved.
 
@@ -30,27 +30,27 @@ static void clampValue(CGFloat &value, CGFloat fromValue, CGFloat toValue, NSUIn
 struct _POPPropertyAnimationState : _POPAnimationState
 {
   POPAnimatableProperty *property;
-  POPValueType valueType;
-  NSUInteger valueCount;
+  POPValueType valueType;//值类型
+  NSUInteger valueCount;//值个数
   VectorRef fromVec;
   VectorRef toVec;
-  VectorRef currentVec;
+  VectorRef currentVec;//当前值
   VectorRef previousVec;//上个值
   VectorRef previous2Vec;//上上个值
-  VectorRef velocityVec;
+  VectorRef velocityVec;//速度
   VectorRef originalVelocityVec;
   VectorRef distanceVec;
   CGFloat roundingFactor;
   NSUInteger clampMode;
-  NSArray *progressMarkers;
-  POPProgressMarker *progressMarkerState;
+  NSArray *progressMarkers;//NSNumber数组
+  POPProgressMarker *progressMarkerState;//POPProgressMarker数组 根据progressMarkers生成
   NSUInteger progressMarkerCount;
-  NSUInteger nextProgressMarkerIdx;
+  NSUInteger nextProgressMarkerIdx;//下一个需要通知的进度的索引
   CGFloat dynamicsThreshold;
 
   _POPPropertyAnimationState(id __unsafe_unretained anim) : _POPAnimationState(anim),
   property(nil),
-  valueType((POPValueType)0),
+  valueType((POPValueType)0),//kPOPValueUnknown
   valueCount(0),
   fromVec(nullptr),
   toVec(nullptr),
@@ -116,6 +116,7 @@ struct _POPPropertyAnimationState : _POPAnimationState
       return vec;
   }
 
+    // 重置ProgressMarkerState 的状态  不清空
   void resetProgressMarkerState()
   {
     for (NSUInteger idx = 0; idx < progressMarkerCount; idx++)
@@ -124,6 +125,7 @@ struct _POPPropertyAnimationState : _POPAnimationState
     nextProgressMarkerIdx = 0;
   }
 
+    //释放progressMarkerState内存 根据progressMarkers重新申请内存创建新的progressMarkerState
   void updatedProgressMarkers()
   {
     if (progressMarkerState) {
@@ -149,6 +151,7 @@ struct _POPPropertyAnimationState : _POPAnimationState
     dynamicsThreshold = property.threshold;
   }
 
+  // currentVec = toVec | delegate to value | clamp
   void finalizeProgress()
   {
     progress = 1.0;
@@ -164,6 +167,7 @@ struct _POPPropertyAnimationState : _POPAnimationState
     delegateProgress();
   }
 
+  // 计算动画进度
   void computeProgress() {
     if (!canProgress()) {
       return;
@@ -176,19 +180,22 @@ struct _POPPropertyAnimationState : _POPAnimationState
     progress = func(v, f, t);
   }
 
+  // 处理progressMarkerState handleDidReachToValue
   void delegateProgress() {
     if (!canProgress()) {
       return;
     }
 
+      // 处理剩余的progressMarkerState
     if (delegateDidProgress && progressMarkerState) {
 
+        // 遍历nextProgressMarkerIdx之后的值
       while (nextProgressMarkerIdx < progressMarkerCount) {
         if (progress < progressMarkerState[nextProgressMarkerIdx].progress)
           break;
 
         if (!progressMarkerState[nextProgressMarkerIdx].reached) {
-          ActionEnabler enabler;
+          ActionEnabler enabler;//RAII
           [delegate pop_animation:self didReachProgress:progressMarkerState[nextProgressMarkerIdx].progress];
           progressMarkerState[nextProgressMarkerIdx].reached = true;
         }
@@ -197,14 +204,17 @@ struct _POPPropertyAnimationState : _POPAnimationState
       }
     }
 
+      // valueCount == 0 YES || toVec-currentVec == 0 YES
     if (!didReachToValue) {
       bool didReachToValue = false;
       if (0 == valueCount) {
         didReachToValue = true;
       } else {
+          // 到完成的距离
         Vector4r distance = toVec->vector4r();
         distance -= currentVec->vector4r();
 
+          // 完成
         if (0 == distance.squaredNorm()) {
           didReachToValue = true;
         } else {
@@ -225,6 +235,7 @@ struct _POPPropertyAnimationState : _POPAnimationState
     }
   }
 
+  // delete and block and tracer record
   void handleDidReachToValue() {
     didReachToValue = true;
 
@@ -244,6 +255,7 @@ struct _POPPropertyAnimationState : _POPAnimationState
     }
   }
 
+    // read and record
   void readObjectValue(VectorRef *ptrVec, id obj)
   {
     // use current object value as from value
@@ -259,13 +271,17 @@ struct _POPPropertyAnimationState : _POPAnimationState
     }
   }
 
+  // 每一帧都会调用 初始化 fromValue toValue currentValue velocity originalVelocity distanceVec
+  // 保证各项均有值
   virtual void willRun(bool started, id obj) {
     // ensure from value initialized
+    // 没有fromValue 将当前值作为fromValue
     if (NULL == fromVec) {
       readObjectValue(&fromVec, obj);
     }
 
     // ensure to value initialized
+    // 没有toValue 如果是kPOPAnimationDecay调用动画的toValue自动计算最终值 否则以当前值为toValue
     if (NULL == toVec) {
       // compute decay to value
       if (kPOPAnimationDecay == type) {
@@ -277,7 +293,7 @@ struct _POPPropertyAnimationState : _POPAnimationState
     }
 
     // handle one time value initialization on start
-    if (started) {
+    if (started) {//动画刚开始才会执行这块代码 其他时候都是false
 
       // initialize current vec
       if (!currentVec) {
@@ -318,6 +334,7 @@ struct _POPPropertyAnimationState : _POPAnimationState
     }
   }
 
+  // 重置
   virtual void reset(bool all) {
     _POPAnimationState::reset(all);
 
@@ -332,6 +349,7 @@ struct _POPPropertyAnimationState : _POPAnimationState
     distanceVec = NULL;
   }
 
+  // 防止值小于起始值 或者大于终点值 kPOPAnimationClampNone直接return
   void clampCurrentValue(NSUInteger clamp)
   {
     if (kPOPAnimationClampNone == clamp)

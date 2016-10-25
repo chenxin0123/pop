@@ -1,4 +1,4 @@
-/**
+/**!~
  Copyright (c) 2014-present, Facebook, Inc.
  All rights reserved.
 
@@ -15,11 +15,11 @@
 struct _POPSpringAnimationState : _POPPropertyAnimationState
 {
   SpringSolver4d *solver;
-  CGFloat springSpeed;
-  CGFloat springBounciness; // normalized springiness
-  CGFloat dynamicsTension;  // tension
-  CGFloat dynamicsFriction; // friction
-  CGFloat dynamicsMass;     // mass
+  CGFloat springSpeed;//弹簧速度
+  CGFloat springBounciness; // normalized springiness 弹力
+  CGFloat dynamicsTension;  // tension 张力
+  CGFloat dynamicsFriction; // friction 摩擦力
+  CGFloat dynamicsMass;     // mass 质量
 
   _POPSpringAnimationState(id __unsafe_unretained anim) : _POPPropertyAnimationState(anim),
   solver(nullptr),

@@ -20,7 +20,7 @@ void POPInterpolateVector(NSUInteger count, CGFloat *dst, const CGFloat *from, c
   }
 }
 
-///获得贝塞尔曲线的Y坐标
+///获得贝塞尔曲线的Y坐标  t [0,1] 返回的值就是动画进度
 double POPTimingFunctionSolve(const double vec[4], double t, double eps)
 {
   WebCore::UnitBezier bezier(vec[0], vec[1], vec[2], vec[3]);

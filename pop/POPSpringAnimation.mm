@@ -1,4 +1,4 @@
-/**
+/**!
  Copyright (c) 2014-present, Facebook, Inc.
  All rights reserved.
 
@@ -8,6 +8,7 @@
  */
 
 #import "POPSpringAnimationInternal.h"
+
 
 @implementation POPSpringAnimation
 
@@ -59,6 +60,7 @@
   return POPBox(__state->velocityVec, __state->valueType);
 }
 
+// set velocityVec and originalVelocityVec and trace record
 - (void)setVelocity:(id)aValue
 {
   POPPropertyAnimationState *s = __state;

@@ -1,4 +1,4 @@
-/**
+/**!
  Copyright (c) 2014-present, Facebook, Inc.
  All rights reserved.
 
@@ -15,8 +15,9 @@
 static CGFloat const kPOPAnimationDurationDefault = 0.4;
 
 // progress threshold for computing done
-static CGFloat const kPOPProgressThreshold = 1e-6;
+static CGFloat const kPOPProgressThreshold = 1e-6; //精确度
 
+//线性插值计算
 static void interpolate(POPValueType valueType, NSUInteger count, const CGFloat *fromVec, const CGFloat *toVec, CGFloat *outVec, CGFloat p)
 {
   switch (valueType) {
@@ -38,9 +39,9 @@ static void interpolate(POPValueType valueType, NSUInteger count, const CGFloat 
 struct _POPBasicAnimationState : _POPPropertyAnimationState
 {
   CAMediaTimingFunction *timingFunction;
-  double timingControlPoints[4];
+  double timingControlPoints[4];// 存放timingFunction中controlPoint1、2 的x、y坐标
   CFTimeInterval duration;
-  CFTimeInterval timeProgress;
+  CFTimeInterval timeProgress;//时间进度
 
   _POPBasicAnimationState(id __unsafe_unretained anim) : _POPPropertyAnimationState(anim),
   timingFunction(nil),
@@ -58,6 +59,7 @@ struct _POPBasicAnimationState : _POPPropertyAnimationState
     return timeProgress + kPOPProgressThreshold >= 1.;
   }
 
+  //更新timingControlPoints
   void updatedTimingFunction()
   {
     float vec[4] = {0.};
@@ -68,6 +70,7 @@ struct _POPBasicAnimationState : _POPPropertyAnimationState
     }
   }
 
+  //前进
   bool advance(CFTimeInterval time, CFTimeInterval dt, id obj) {
     // default timing function
     if (!timingFunction) {

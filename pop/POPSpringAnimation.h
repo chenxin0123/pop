@@ -12,12 +12,13 @@
 /**
  @abstract A concrete spring animation class.
  @discussion Animation is achieved through modeling spring dynamics.
+ 没有duration 时间由各个物理参数决定
  */
 @interface POPSpringAnimation : POPPropertyAnimation
 
 /**
  @abstract The designated initializer.
- @returns An instance of a spring animation.
+ @returns An instance of a spring animation. 
  */
 + (instancetype)animation;
 

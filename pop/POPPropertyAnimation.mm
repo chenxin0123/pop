@@ -1,4 +1,4 @@
-/**
+/**!
  Copyright (c) 2014-present, Facebook, Inc.
  All rights reserved.
 
@@ -34,6 +34,7 @@ DEFINE_RW_PROPERTY_OBJ_COPY(POPPropertyAnimationState, progressMarkers, setProgr
   return POPBox(__state->fromVec, __state->valueType);
 }
 
+// set and trace
 - (void)setFromValue:(id)aValue
 {
   POPPropertyAnimationState *s = __state;
@@ -52,6 +53,7 @@ DEFINE_RW_PROPERTY_OBJ_COPY(POPPropertyAnimationState, progressMarkers, setProgr
   return POPBox(__state->toVec, __state->valueType);
 }
 
+// set toValue ,reset didReachToValue/didReachToValue ,trace, automatically unpause
 - (void)setToValue:(id)aValue
 {
   POPPropertyAnimationState *s = __state;
@@ -75,6 +77,7 @@ DEFINE_RW_PROPERTY_OBJ_COPY(POPPropertyAnimationState, progressMarkers, setProgr
   }
 }
 
+// boxed value
 - (id)currentValue
 {
   return POPBox(__state->currentValue(), __state->valueType);

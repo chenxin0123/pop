@@ -1,4 +1,4 @@
-/**
+/**!
  Copyright (c) 2014-present, Facebook, Inc.
  All rights reserved.
  
@@ -44,6 +44,7 @@ using namespace POP;
   return self;
 }
 
+//初始化
 - (void)_initState
 {
   _state = new POPAnimationState(self);
@@ -58,7 +59,7 @@ using namespace POP;
 }
 
 #pragma mark - Properties
-
+///代理 作为_state的属性
 - (id)delegate
 {
   return _state->delegate;
@@ -152,6 +153,7 @@ DEFINE_RW_FLAG(POPAnimationState, repeatForever, repeatForever, setRepeatForever
   return _state->dict[key];
 }
 
+///value为nil表示移除
 - (void)setValue:(id)value forUndefinedKey:(NSString *)key
 {
   if (!value) {
@@ -195,6 +197,7 @@ POPAnimationState *POPAnimationGetState(POPAnimation *a)
   return a->_state;
 }
 
+///子类会重写
 - (BOOL)_advance:(id)object currentTime:(CFTimeInterval)currentTime elapsedTime:(CFTimeInterval)elapsedTime
 {
   return YES;

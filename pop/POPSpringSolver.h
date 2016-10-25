@@ -158,7 +158,7 @@ namespace POP {
       }
     }
     
-      //收敛
+    // 收敛
     bool hasConverged()
     {
       if (!_started) {
@@ -174,7 +174,7 @@ namespace POP {
       return (_lastState.v.squaredNorm() < _tv) && (_lastDv.squaredNorm() < _ta);
     }
     
-      //重置
+    // 重置
     void reset()
     {
       _accumulatedTime = 0;
